@@ -26,12 +26,19 @@ namespace TestAppConfig
                 var settings = config.Build();
                 if (hostingContext.HostingEnvironment.IsDevelopment())
                 {
-                    config.AddAzureAppConfiguration(settings["ConnectionStrings:AppConfig"]);
+                    config.AddAzureAppConfiguration(options =>
+                    {
+                        options.Connect(settings["ConnectionStrings:AppConfig"])
+                           .UseFeatureFlags();
+                    });
                 }
                 else
                 {
                     config.AddAzureAppConfiguration(options =>
-                    options.Connect(new Uri(settings["AppConfig:Endpoint"]), new ManagedIdentityCredential()));
+                    {
+                        options.Connect(new Uri(settings["AppConfig:Endpoint"]), new ManagedIdentityCredential())
+                            .UseFeatureFlags();
+                    });
                 }
             })
             .UseStartup<Startup>());
